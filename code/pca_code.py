@@ -6,29 +6,33 @@ import numpy as np  # the Python array package
 import matplotlib.pyplot as plt  # the Python plotting package
 # Display array values to 6 digits of precision
 np.set_printoptions(precision=4, suppress=True)
-
 #: import numpy.linalg with a shorter name
 import numpy.linalg as npl
+import nibabel as nib
+import os
 
 #- Load the image 'ds114_sub009_t2r1.nii' with nibabel
 #- Get the data array from the image
-
+img = nib.load('ds114_sub009_t2r1.nii')
+shape = img.shape
+print(shape)
+image_data_array = img.get_fdata()
 #- Make variables:
 #- 'vol_shape' for shape of volumes
 #- 'n_vols' for number of volumes
-
+vol_shape = shape[0:3]
+n_vols = shape[-1]
 #- Slice the image data array to give array with only first two
 #- volumes
-
+image_data_array = image_data_array[:, :, :,  0:2]
 #- Set N to be the number of voxels in a volume
-
+N = vol_shape[0]*vol_shape[1]*vol_shape[2]
 #- Reshape to 2D array with first dimension length N
-
+image_data_array = np.reshape(image_data_array, (N, 2))
 #- Transpose to 2 by N array
-
+image_data_array = image_data_array.transpose()
 #- Calculate the mean across columns
-
-
+mean = image_data_array.mean(axis=0)
 #- Row means copied N times to become a 2 by N array
 
 #- Subtract the means for each row, put the result into X
