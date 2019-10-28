@@ -31,44 +31,52 @@ N = vol_shape[0]*vol_shape[1]*vol_shape[2]
 image_data_array = np.reshape(image_data_array, (N, 2))
 #- Transpose to 2 by N array
 image_data_array = image_data_array.transpose()
-#- Calculate the mean across columns
-mean = image_data_array.mean(axis=0)
+#- Calculate the mean across columns (122880,)
+colum_mean = image_data_array.mean(axis=0)
 #- Row means copied N times to become a 2 by N array
-
+row_means = image_data_array.mean(axis=1) #(2,)
+row_means = np.repeat(row_means, N, axis=0) #(2, 122880)
+row_means = row_means.reshape((2, N))
 #- Subtract the means for each row, put the result into X
 #- Show the means over the columns, after the subtraction
-
-
+#X = image_data_array - colum_mean
+X = image_data_array - row_means
+print('new column means; ', X.mean(axis=0))
 #- Plot the signal in the first row against the signal in the second
-
+plt.plot(X[:, 0], X[:, 1])
+plt.show()
 #- Calculate unscaled covariance matrix for X
-
-
+cov = np.cov(X)
 #- Use SVD to return U, S, VT matrices from unscaled covariance
-
+U,S,VT = np.linalg.svd(cov)
 #- Show that the columns in U each have vector length 1
-
+print('length of column vectors: ', np.linalg.norm(U, axis=0))
 
 #- Confirm orthogonality of columns in U
-
+print('vector product of columns of U = ', np.dot(U[0, :], U[1, :]))
 #- Confirm tranpose of U is inverse of U
-
+print('transpose of U = ', np.transpose(U))
+print('inverse of U = ', np.linalg.inv(U))
 #- Show the total sum of squares in X
 #- Is this (nearly) the same as the sum of the values in S?
-
+print('sum of squares in X = ', np.sum(X**2))
+print('sum of values in S = ', np.sum(S))
 
 #- Plot the signal in the first row against the signal in the second
 #- Plot line corresponding to a scaled version of the first principal component
 #- (Scaling may need to be negative)
-
+plt.plot(X[:, 0], X[:, 1])
+plt.plot(U[:, 0])
+plt.show()
 #- Calculate the scalar projections for projecting X onto the
 #- vectors in U.
 #- Put the result into a new array C.
-
+C = U.T.dot(X)
 #- Transpose C
 #- Reshape the first dimension of C to have the 3D shape of the
 #- original data volumes.
-
+Ct = np.transpose(C)
+Cr = np.reshape(C, (vol_shape[0], -1, -1))
 #- Break 4D array into two 3D volumes
 
 #- Show middle slice (over third dimension) from scalar projections
